@@ -15,6 +15,8 @@ sudo ln -sf /opt/bsqli/bsqli.py /usr/local/bin/bsqli
 
 bsqli -h
 ```
+<a href="https://github.com/freelancermijan/my-payloads/blob/main/SQLi/sleeps.txt">payload</a>
+
 ## Features
 
 1. Multi Parameter scanning.
