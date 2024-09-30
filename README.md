@@ -15,3 +15,5 @@ sudo ln -sf /opt/bsqli/bsqli.py /usr/local/bin/bsqli
 
 bsqli -h
 ```
+
+![multi-parameter](multi-parameter.png)
