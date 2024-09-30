@@ -15,5 +15,9 @@ sudo ln -sf /opt/bsqli/bsqli.py /usr/local/bin/bsqli
 
 bsqli -h
 ```
+## Features
+
+1. Multi Parameter scanning.
+2. Others
 
 ![multi-parameter](multi-parameter.png)
