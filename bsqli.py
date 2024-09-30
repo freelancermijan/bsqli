@@ -5,6 +5,7 @@ import time
 import concurrent.futures
 import random
 import argparse
+import logging
 
 class Color:
     BLUE = '\033[94m'
@@ -30,26 +31,27 @@ class BSQLI:
     def __init__(self, verbose=False):
         self.vulnerabilities_found = 0
         self.total_tests = 0
-        self.verbose = verbose  # Now set through argparse
+        self.verbose = verbose
         self.vulnerable_urls = []
+        logging.basicConfig(filename='error_log.txt', level=logging.ERROR)
 
     def get_random_user_agent(self):
         return random.choice(self.USER_AGENTS)
 
-    def perform_request(self, url, payload, cookie):
-        url_with_payload = f"{url}{payload}"
+    def perform_request(self, base_url, modified_query, payload, cookie):
+        request_url = f"{base_url}?{modified_query}"
         start_time = time.time()
         headers = {'User-Agent': self.get_random_user_agent()}
         try:
-            response = requests.get(url_with_payload, headers=headers, cookies={'cookie': cookie} if cookie else None)
+            response = requests.get(request_url, headers=headers, cookies={'cookie': cookie} if cookie else None)
             response.raise_for_status()
             response_time = time.time() - start_time
             success = True
         except requests.exceptions.RequestException as e:
             response_time = time.time() - start_time
             success = False
-            return success, url_with_payload, response_time, None, str(e)
-        return success, url_with_payload, response_time, response.status_code, None
+            return success, request_url, response_time, None, str(e)
+        return success, request_url, response_time, response.status_code, None
 
     def read_file(self, path):
         try:
@@ -68,21 +70,37 @@ class BSQLI:
         except Exception as e:
             print(f"{Color.RED}Error saving vulnerable URLs to file: {e}{Color.RESET}")
 
+    def scan_url(self, url, payload, cookie):
+        # Split URL into base and query string
+        try:
+            base_url, query_string = url.split('?', 1)
+        except ValueError:
+            base_url = url
+            query_string = ''
+
+        # Split parameters and inject payload into each
+        pairs = query_string.split('&')
+        for i in range(len(pairs)):
+            if '=' in pairs[i]:
+                key, value = pairs[i].split('=', 1)
+                modified_pairs = pairs.copy()
+                modified_pairs[i] = f"{key}={payload}"
+                modified_query = '&'.join(modified_pairs)
+                success, request_url, response_time, status_code, error_message = self.perform_request(base_url, modified_query, payload, cookie)
+                self.total_tests += 1
+                self.log_result(success, request_url, response_time, status_code)
+
     def run_scan(self, urls, payloads, cookie, threads):
         try:
             if threads == 0:
                 for url in urls:
                     for payload in payloads:
-                        self.total_tests += 1
-                        success, url_with_payload, response_time, status_code, error_message = self.perform_request(url, payload, cookie)
-                        self.log_result(success, url_with_payload, response_time, status_code)
+                        self.scan_url(url, payload, cookie)
             else:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-                    futures = [executor.submit(self.perform_request, url, payload, cookie) for url in urls for payload in payloads]
+                    futures = [executor.submit(self.scan_url, url, payload, cookie) for url in urls for payload in payloads]
                     for future in concurrent.futures.as_completed(futures):
-                        self.total_tests += 1
-                        success, url_with_payload, response_time, status_code, error_message = future.result()
-                        self.log_result(success, url_with_payload, response_time, status_code)
+                        future.result()
         except KeyboardInterrupt:
             print(f"{Color.YELLOW}Scan interrupted by user.{Color.RESET}")
 
