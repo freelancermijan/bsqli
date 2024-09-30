@@ -13,7 +13,6 @@ class Color:
     YELLOW = '\033[93m'
     RED = '\033[91m'
     PURPLE = '\033[95m'
-    CYAN = '\033[96m'
     RESET = '\033[0m'
 
 class BSQLI:
@@ -71,14 +70,12 @@ class BSQLI:
             print(f"{Color.RED}Error saving vulnerable URLs to file: {e}{Color.RESET}")
 
     def scan_url(self, url, payload, cookie):
-        # Split URL into base and query string
         try:
             base_url, query_string = url.split('?', 1)
         except ValueError:
             base_url = url
             query_string = ''
 
-        # Split parameters and inject payload into each
         pairs = query_string.split('&')
         for i in range(len(pairs)):
             if '=' in pairs[i]:
@@ -118,12 +115,13 @@ class BSQLI:
 
 def main():
     parser = argparse.ArgumentParser(description="BSQLI Tool - One Line Command Tool")
-    parser.add_argument('--urls', type=str, required=True, help="Path to URL list file or a single URL")
-    parser.add_argument('--payloads', type=str, required=True, help="Path to the payload file")
-    parser.add_argument('--cookie', type=str, default="", help="Cookie to include in GET request")
-    parser.add_argument('--threads', type=int, default=0, help="Number of concurrent threads (0-10)")
-    parser.add_argument('--save', type=str, default="", help="Filename to save vulnerable URLs")
-    parser.add_argument('--verbose', action='store_true', help="Enable verbose mode")
+    parser.add_argument('-u', '--urls', type=str, required=True, help="Path to URL list file or a single URL")
+    parser.add_argument('-p', '--payloads', type=str, required=True, help="Path to the payload file")
+    parser.add_argument('-c', '--cookie', type=str, default="", help="Cookie to include in GET request")
+    parser.add_argument('-t', '--threads', type=int, default=0, help="Number of concurrent threads (0-10)")
+    parser.add_argument('-o', '--save', type=str, default="", help="Filename to save vulnerable URLs")
+    parser.add_argument('-v', '--verbose', action='store_true', help="Enable verbose mode")
+    parser.add_argument('-V', '--version', action='version', version='BSQLI Tool 1.0')
 
     args = parser.parse_args()
 
