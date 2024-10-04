@@ -15,7 +15,14 @@ sudo ln -sf /opt/bsqli/bsqli.py /usr/local/bin/bsqli
 
 bsqli -h
 ```
-<a href="https://github.com/freelancermijan/my-payloads/blob/main/SQLi/sleeps.txt">payload</a>
+
+<a href="https://github.com/freelancermijan/my-payloads/blob/main/SQLi/Blind-SQLis/sleeps.txt"></a>
+
+### sleep payload
+
+```
+wget https://raw.githubusercontent.com/freelancermijan/my-payloads/refs/heads/main/SQLi/Blind-SQLis/sleeps.txt
+```
 
 ## Features
 
