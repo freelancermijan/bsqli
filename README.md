@@ -2,9 +2,7 @@
 
 ```
 cd /opt/ && sudo git clone https://github.com/freelancermijan/bsqli.git && cd bsqli/
-
 sudo chmod +x ./*.py
-
 cd
 
 sudo apt install dos2unix -y
